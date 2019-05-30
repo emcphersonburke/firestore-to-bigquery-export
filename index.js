@@ -64,7 +64,7 @@ exports.createBigQueryTables = (datasetID, collectionNames, verbose = false) => 
     })
     .then(() => {
       return Promise.all(collectionNames.map(n => {
-        return createTableWithSchema(datasetID, n, verbose)
+        return createTableWithSchema(datasetID, n.replace('-', '_'), verbose)
       }))
     })
 }
