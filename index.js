@@ -64,7 +64,7 @@ exports.createBigQueryTables = (datasetID, collectionNames, verbose = false) => 
     })
     .then(() => {
       return Promise.all(collectionNames.map(n => {
-        return createTableWithSchema(datasetID, n.replace('-', '_'), verbose)
+        return createTableWithSchema(datasetID, n, verbose)
       }))
     })
 }
@@ -130,7 +130,7 @@ function createTableWithSchema (datasetID, collectionName, verbose = false) {
         })
       }
 
-      return bigQuery.dataset(datasetID).createTable(collectionName, options)
+      return bigQuery.dataset(datasetID).createTable(collectionName.replace('-', '_'), options)
     })
     .catch(e => {
       if (verbose) console.error(e)
