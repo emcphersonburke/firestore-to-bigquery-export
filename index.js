@@ -179,9 +179,20 @@ function createTableWithSchema (datasetID, collectionName, verbose = false) {
       return field
     }
     else if (Array.isArray(val)) {
-      field.type = 'STRING'
-      field.mode = 'REPEATED'
-      return field
+      if (typeof val[0] === 'string') {
+        field.type = 'STRING'
+        field.mode = 'REPEATED'
+        return field
+      }
+        
+      for (let i = 0; i < val.length; i++) {
+        const schemaField = getSchemaField(val[i], i, field.name)
+        if (schemaField !== undefined && !index.hasOwnProperty(schemaField.name)) {
+          options.schema.fields.push(schemaField)
+          index[schemaField.name] = schemaField
+        }
+      }
+      return undefined
     }
     else if (typeof val === 'object' && Object.keys(val).length) {
       Object.keys(val).forEach(subPropName => {
@@ -283,13 +294,16 @@ function formatProp (val, propName, parent) {
 
   const name = formatName(propName, parent)
 
-  /*if (Array.isArray(val)) {
+  if (Array.isArray(val)) {
+    if (typeof val[0] === 'string') {
+      return val
+    }
     for (let i = 0; i < val.length; i++) {
       const formattedProp = formatProp(val[i], i, name)
       if (formattedProp !== undefined) currentRow[formatName(i, name)] = formattedProp
     }
   }
-  else*/ if (typeof val === 'object' && Object.keys(val).length) {
+  else if (typeof val === 'object' && Object.keys(val).length) {
     Object.keys(val).forEach(subPropName => {
       const formattedProp = formatProp(val[subPropName], subPropName, name)
       if (formattedProp !== undefined) currentRow[formatName(subPropName, name)] = formattedProp
